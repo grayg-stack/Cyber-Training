@@ -1,0 +1,39 @@
+This is my explanation of how to encrypt a message using AES.
+You can use one of three key lengths - 128, 192, or 256 bits.
+This determines the size of the blocks.
+AES goes byte by byte instead of per bit, as with XOR.
+
+AES is round based, so it repeats itself a fixed number of times dependent
+on the key length (10 rounds for 128, 12 for 192, 14 for 256)
+
+Bytes are determined by using a lookup table to assign values to
+substitute the blocks for bytes
+
+Each byte is then represented in a 4x4 byte grid (so 16 total)
+We then perform some transformations on the grid depending on the row.
+The first row does nothing, second row shifts to the left once,
+third row shifts left twice, and the fourth row shifts three times to the left.
+
+I don't completely understand how it works, but the next step involves performing
+matrix multiplication of each byte in the row against a specfic matrix, once per round
+except for the last one. This mixes the values in the matrix up, but it can be reversed.
+
+Finally, the last step for AES is XORing the result against round keys.
+This can get a bit complicated, but it is a security measure that prevents
+AES from being broken by repetition attacks.
+
+This work by generating a new key for every round, and the new key is added
+a key schedule. This key schedule uses a different key to XOR against the new iteration
+at the end of every round's step 4. For example, each round key is the result of all the transformations
+for each specific round. That end state is added to the key schedule, and can be used 
+at the end of another round to XOR the result. 
+
+To give an example, round key 0 is just the original key, 1-9 are the end states from each
+round, and round key 10 would be the end state for the last round. This would 
+be specific to a 128 bit key length encryption scenario, as that would be 10 rounds of AES.
+
+I wanted to explain how to encrypt it first so i could then explain decryption.
+AES decryption follows the same steps as encryption, but in reverse order and multiplied against
+the inverse matrices at each evolution. Rows shifted to the left now shift back right, but the 
+first row still does not move. Substituting bytes is done with an inverse lookup table (S-box)
+Round keys are used in opposite order to undo that part, and column mixing is undone with inverse matrix multiplication.
